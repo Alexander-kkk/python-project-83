@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, render_template
 from dotenv import load_dotenv
 
 
@@ -12,4 +12,4 @@ app.config["DATABASE_URL"] = os.getenv("DATABASE_URL")
 
 @app.route("/")
 def index():
-    return "python-project-83"
+    return render_template("index.html")
