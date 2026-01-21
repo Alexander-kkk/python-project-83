@@ -8,9 +8,11 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+
 def get_db_connection():
     conn = psycopg2.connect(DATABASE_URL)
     return conn
+
 
 def normalize_url(url):
     parsed = urlparse(url)
@@ -20,13 +22,15 @@ def normalize_url(url):
         return normalize_url
     else:
         return normalize_url
-    
-    
+
+
 def add_url(url):
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             try:
-                cur.execute("INSERT INTO urls (name) VALUES (%s) RETURNING id", (url,))
+                cur.execute(
+                    "INSERT INTO urls (name) VALUES (%s) RETURNING id", (url,)
+                    )
                 url_id = cur.fetchone()[0]
                 conn.commit()
                 return url_id, True
@@ -35,7 +39,7 @@ def add_url(url):
                 cur.execute("Select id from urls where name = %s", (url,))
                 result = cur.fetchone()[0]
                 return result, False if result else None
-            
+
 
 def get_url_by_id(url_id):
     with get_db_connection() as conn:
@@ -43,11 +47,11 @@ def get_url_by_id(url_id):
             cur.execute("SELECT * FROM urls WHERE id = %s", (url_id,))
             result = cur.fetchone()
             return result
-        
+
+
 def get_all_urls():
     with get_db_connection() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute("SELECT * FROM urls")
             result = cur.fetchall()
             return result
-

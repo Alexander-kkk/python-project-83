@@ -35,15 +35,15 @@ def urls_get():
 def urls_post():
     messages = get_flashed_messages(with_categories=True)
     url_input = request.form.get("url", "").strip()
-    
+
     if not url_input:
         flash("Заполните это поле", "error")
         return render_template("index.html", url=url_input, messages=messages)
-    
+
     if not validators.url(url_input) or len(url_input) > 255:
         flash("Некорректный URL", "error")
         return render_template("index.html", url=url_input, messages=messages)
-    
+
     normalize_url = db.normalize_url(url_input)
     url_id, is_new = db.add_url(normalize_url)
 
