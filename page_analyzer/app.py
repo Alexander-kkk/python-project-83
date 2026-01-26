@@ -59,7 +59,9 @@ def urls_show(id):
     url = db.get_url_by_id(id)
     checks = db.get_url_checks(id)
     messages = get_flashed_messages(with_categories=True)
-    return render_template("show.html", url=url, messages=messages, checks=checks)
+    return render_template(
+        "show.html", url=url, messages=messages, checks=checks
+        )
 
 
 @app.post("/urls/<int:id>/checks")
