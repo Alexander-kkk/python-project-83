@@ -57,5 +57,16 @@ def urls_post():
 @app.route("/urls/<int:id>")
 def urls_show(id):
     url = db.get_url_by_id(id)
+    checks = db.get_url_checks(id)
     messages = get_flashed_messages(with_categories=True)
-    return render_template("show.html", url=url, messages=messages)
+    return render_template("show.html", url=url, messages=messages, checks=checks)
+
+
+@app.post("/urls/<int:id>/checks")
+def urls_checks(id):
+    try:
+        db.add_url_check(id)
+        flash("Страница успешно проверена", "success")
+    except Exception as e:
+        flash(f"Ошибка при проверке: {str(e)}", "danger")
+    return redirect(url_for("urls_show", id=id))

@@ -28,9 +28,7 @@ def add_url(url):
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             try:
-                cur.execute(
-                    "INSERT INTO urls (name) VALUES (%s) RETURNING id", (url,)
-                    )
+                cur.execute("INSERT INTO urls (name) VALUES (%s) RETURNING id", (url,))
                 url_id = cur.fetchone()[0]
                 conn.commit()
                 return url_id, True
@@ -53,5 +51,32 @@ def get_all_urls():
     with get_db_connection() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute("SELECT * FROM urls")
+            result = cur.fetchall()
+            return result
+
+
+def add_url_check(url_id):
+    with get_db_connection() as conn:
+        with conn.cursor(cursor_factory=DictCursor) as cur:
+            try:
+                cur.execute(
+                    "INSERT INTO url_checks (url_id) VALUES (%s) RETURNING id, created_at",
+                    (url_id,),
+                )
+                result = cur.fetchone()
+                conn.commit()
+                return result
+            except Exception as e:
+                conn.rollback()
+                raise e
+
+
+def get_url_checks(url_id):
+    with get_db_connection() as conn:
+        with conn.cursor(cursor_factory=DictCursor) as cur:
+            cur.execute(
+                "SELECT * FROM url_checks WHERE url_id = %s ORDER BY created_at DESC",
+                (url_id,),
+            )
             result = cur.fetchall()
             return result
