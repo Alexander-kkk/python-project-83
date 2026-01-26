@@ -55,20 +55,30 @@ def get_url_by_id(url_id):
 def get_all_urls():
     with get_db_connection() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
-            cur.execute("SELECT * FROM urls")
-            result = cur.fetchall()
-            return result
+            cur.execute("""
+                    SELECT 
+                        urls.id,
+                        urls.name,
+                        MAX(url_checks.created_at) as last_check,
+                        MAX(url_checks.status_code) as status_code
+                    FROM urls
+                    LEFT JOIN url_checks ON urls.id = url_checks.url_id
+                    GROUP BY urls.id, urls.name
+                    ORDER BY urls.id DESC
+                """)
+            urls = cur.fetchall()
+            return urls
 
 
-def add_url_check(url_id):
+def add_url_check(url_id, status_code=None):
     with get_db_connection() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             try:
                 cur.execute(
-                    """INSERT INTO url_checks (url_id)
-                    VALUES (%s)
-                    "RETURNING id, created_at""",
-                    (url_id,),
+                    """INSERT INTO url_checks (url_id, status_code)
+                    VALUES (%s, %s)
+                    RETURNING id, status_code, created_at""",
+                    (url_id, status_code),
                 )
                 result = cur.fetchone()
                 conn.commit()
@@ -90,3 +100,4 @@ def get_url_checks(url_id):
             )
             result = cur.fetchall()
             return result
+

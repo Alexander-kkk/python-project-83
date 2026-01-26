@@ -11,6 +11,7 @@ from flask import (
 from dotenv import load_dotenv
 from page_analyzer import db
 import validators
+import requests
 
 load_dotenv()
 
@@ -28,7 +29,7 @@ def index():
 def urls_get():
     urls_list = db.get_all_urls()
     urls_sorted = sorted(urls_list, key=lambda x: x["id"], reverse=True)
-    return render_template("urls.html", urls=urls_sorted)
+    return render_template("urls.html", urls=urls_sorted, checks=urls_checks)
 
 
 @app.post("/urls")
@@ -67,8 +68,11 @@ def urls_show(id):
 @app.post("/urls/<int:id>/checks")
 def urls_checks(id):
     try:
-        db.add_url_check(id)
+        url = db.get_url_by_id(id)["name"]
+        response = requests.get(url)
+        response.raise_for_status()
+        db.add_url_check(id, status_code=response.status_code)
         flash("Страница успешно проверена", "success")
-    except Exception as e:
-        flash(f"Ошибка при проверке: {str(e)}", "danger")
+    except requests.RequestException:
+        flash("Произошла ошибка при проверке", "danger")
     return redirect(url_for("urls_show", id=id))
