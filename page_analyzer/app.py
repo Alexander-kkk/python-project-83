@@ -37,11 +37,11 @@ def urls_post():
     url_input = request.form.get("url", "").strip()
 
     if not url_input:
-        flash("Заполните это поле", 'danger')
+        flash("Заполните это поле", "danger")
         return render_template("index.html", url=url_input), 422
 
     if not validators.url(url_input) or len(url_input) > 255:
-        flash("Некорректный URL", 'danger')
+        flash("Некорректный URL", "danger")
         return render_template("index.html", url=url_input), 422
 
     normalize_url = db.normalize_url(url_input)
@@ -53,14 +53,12 @@ def urls_post():
         flash("Страница уже существует", "info")
     return redirect(url_for("urls_show", id=url_id))
 
+
 @app.route("/urls/<int:id>")
 def urls_show(id):
     url = db.get_url_by_id(id)
     checks = db.get_url_checks(id)
-    return render_template(
-        "show.html", url=url,
-        checks=checks
-        )
+    return render_template("show.html", url=url, checks=checks)
 
 
 @app.post("/urls/<int:id>/checks")
