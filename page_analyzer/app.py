@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from page_analyzer import db
 import validators
 import requests
+from bs4 import BeautifulSoup
 
 load_dotenv()
 
@@ -71,7 +72,18 @@ def urls_checks(id):
         url = db.get_url_by_id(id)["name"]
         response = requests.get(url)
         response.raise_for_status()
-        db.add_url_check(id, status_code=response.status_code)
+        soup = BeautifulSoup(response.text, "html.parser")
+        meta_tag = soup.find('meta', attrs={'name': 'description'})
+        description = meta_tag['content'] if meta_tag else None
+        if description:
+            description = description[:255]
+        print(soup.h1)
+        db.add_url_check(
+            id, status_code=response.status_code, 
+            h1=soup.h1.string if soup.h1 else None, 
+            title = soup.title.string if soup.title else None, 
+            description=description
+            )
         flash("Страница успешно проверена", "success")
     except requests.RequestException:
         flash("Произошла ошибка при проверке", "danger")
