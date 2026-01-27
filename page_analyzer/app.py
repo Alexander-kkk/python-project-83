@@ -40,11 +40,11 @@ def urls_post():
 
     if not url_input:
         flash("Заполните это поле", "error")
-        return render_template("index.html", url=url_input, messages=messages)
+        return render_template("index.html", url=url_input, messages=messages), 422
 
     if not validators.url(url_input) or len(url_input) > 255:
         flash("Некорректный URL", "error")
-        return render_template("index.html", url=url_input, messages=messages)
+        return render_template("index.html", url=url_input, messages=messages), 422
 
     normalize_url = db.normalize_url(url_input)
     url_id, is_new = db.add_url(normalize_url)
