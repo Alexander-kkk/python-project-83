@@ -62,7 +62,9 @@ def urls_show(id):
     checks = db.get_url_checks(id)
     messages = get_flashed_messages(with_categories=True)
     return render_template(
-        "show.html", url=url, messages=messages, checks=checks
+        "show.html", url=url,
+        messages=messages,
+        checks=checks
         )
 
 
@@ -73,17 +75,18 @@ def urls_checks(id):
         response = requests.get(url)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
-        meta_tag = soup.find('meta', attrs={'name': 'description'})
-        description = meta_tag['content'] if meta_tag else None
+        meta_tag = soup.find("meta", attrs={"name": "description"})
+        description = meta_tag["content"] if meta_tag else None
         if description:
             description = description[:255]
         print(soup.h1)
         db.add_url_check(
-            id, status_code=response.status_code, 
-            h1=soup.h1.string if soup.h1 else None, 
-            title = soup.title.string if soup.title else None, 
-            description=description
-            )
+            id,
+            status_code=response.status_code,
+            h1=soup.h1.string if soup.h1 else None,
+            title=soup.title.string if soup.title else None,
+            description=description,
+        )
         flash("Страница успешно проверена", "success")
     except requests.RequestException:
         flash("Произошла ошибка при проверке", "danger")

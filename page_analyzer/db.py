@@ -56,7 +56,7 @@ def get_all_urls():
     with get_db_connection() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute("""
-                    SELECT 
+                    SELECT
                         urls.id,
                         urls.name,
                         MAX(url_checks.created_at) as last_check,
@@ -70,14 +70,27 @@ def get_all_urls():
             return urls
 
 
-def add_url_check(url_id, status_code=None, h1=None, title = None, description=None):
+def add_url_check(
+    url_id,
+    status_code=None,
+    h1=None,
+    title=None,
+    description=None
+):
     with get_db_connection() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             try:
                 cur.execute(
-                    """INSERT INTO url_checks (url_id, status_code, h1, title, description)
+                    """INSERT INTO url_checks
+                    (url_id, status_code, h1, title, description)
                     VALUES (%s, %s, %s, %s, %s)
-                    RETURNING id, status_code, h1, title, description, created_at""",
+                    RETURNING
+                    id,
+                    status_code,
+                    h1,
+                    title,
+                    description,
+                    created_at""",
                     (url_id, status_code, h1, title, description),
                 )
                 result = cur.fetchone()
@@ -100,4 +113,3 @@ def get_url_checks(url_id):
             )
             result = cur.fetchall()
             return result
-
