@@ -6,7 +6,6 @@ from flask import (
     flash,
     redirect,
     url_for,
-    get_flashed_messages,
 )
 from dotenv import load_dotenv
 from page_analyzer import db
