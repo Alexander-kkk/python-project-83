@@ -8,7 +8,7 @@ from flask import (
     url_for,
 )
 from dotenv import load_dotenv
-from page_analyzer import db
+from page_analyzer import db, normalize, parser
 import validators
 import requests
 from bs4 import BeautifulSoup
@@ -44,8 +44,8 @@ def urls_post():
         flash("Некорректный URL", "danger")
         return render_template("index.html", url=url_input), 422
 
-    normalize_url = db.normalize_url(url_input)
-    url_id, is_new = db.add_url(normalize_url)
+    normalized_url = normalize.normalize_url(url_input)
+    url_id, is_new = db.add_url(normalized_url)
 
     if is_new:
         flash("Страница успешно добавлена", "success")
@@ -65,20 +65,13 @@ def urls_show(id):
 def urls_checks(id):
     try:
         url = db.get_url_by_id(id)["name"]
-        response = requests.get(url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, "html.parser")
-        meta_tag = soup.find("meta", attrs={"name": "description"})
-        description = meta_tag["content"] if meta_tag else None
-        if description:
-            description = description[:255]
-        print(soup.h1)
+        parsed_data = parser.parse_html(url)
         db.add_url_check(
             id,
-            status_code=response.status_code,
-            h1=soup.h1.string if soup.h1 else None,
-            title=soup.title.string if soup.title else None,
-            description=description,
+            status_code=parsed_data['status_code'],
+            h1=parsed_data['h1'],
+            title=parsed_data['title'],
+            description=parsed_data['description'],
         )
         flash("Страница успешно проверена", "success")
     except requests.RequestException:

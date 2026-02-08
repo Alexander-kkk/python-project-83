@@ -1,7 +1,6 @@
 import os
 import psycopg2
 from psycopg2.extras import DictCursor
-from urllib.parse import urlparse
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,16 +11,6 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 def get_db_connection():
     conn = psycopg2.connect(DATABASE_URL)
     return conn
-
-
-def normalize_url(url):
-    parsed = urlparse(url)
-    normalize_url = f"{parsed.scheme}://{parsed.netloc}"
-    if normalize_url.endswith("/"):
-        normalize_url = normalize_url[:-1]
-        return normalize_url
-    else:
-        return normalize_url
 
 
 def add_url(url):

@@ -16,7 +16,7 @@ build:
 	./build.sh
 
 lint:
-	uv run ruff page_analyzer
+	uv run ruff check page_analyzer
 
 test:
 	uv run pytest
