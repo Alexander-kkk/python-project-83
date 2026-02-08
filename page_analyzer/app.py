@@ -11,7 +11,6 @@ from dotenv import load_dotenv
 from page_analyzer import db, normalize, parser
 import validators
 import requests
-from bs4 import BeautifulSoup
 
 load_dotenv()
 
