@@ -1,6 +1,0 @@
-[flake8]
-# Максимальная длина строки
-max-line-length = 120
-
-# Игнорируемые файлы и папки
-exclude = .git,__pycache__,venv,.venv,build,dist,migrations
